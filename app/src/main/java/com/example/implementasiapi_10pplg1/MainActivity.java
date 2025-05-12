@@ -25,23 +25,23 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         rvTeams = findViewById(R.id.rvTeams);
-
-        // Set RecyclerView's LayoutManager
         rvTeams.setLayoutManager(new LinearLayoutManager(this));
-
-        // Initialize adapter with null list (it will be updated after data is fetched)
         teamAdapter = new TeamAdapter(this, null);
         rvTeams.setAdapter(teamAdapter);
 
-        // Fetch teams from the API
-        fetchTeams("English Premier League");
+        // Ambil data liga dari intent
+        String league = getIntent().getStringExtra("league");
+        if (league != null && !league.isEmpty()) {
+            fetchTeams(league);
+        } else {
+            Toast.makeText(this, "League not specified", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void fetchTeams(String league) {
         APIService apiService = ApiClient.getClient().create(APIService.class);
         Call<TeamResponse> call = apiService.getTeams(league);
 
-        // Enqueue the call to run asynchronously
         call.enqueue(new Callback<TeamResponse>() {
             @Override
             public void onResponse(Call<TeamResponse> call, Response<TeamResponse> response) {
@@ -65,9 +65,6 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Failed to load teams", Toast.LENGTH_SHORT).show();
                 }
             }
-
-
-
 
             @Override
             public void onFailure(Call<TeamResponse> call, Throwable t) {
